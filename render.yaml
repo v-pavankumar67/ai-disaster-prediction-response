@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: ai-disaster-management-india
+    runtime: docker
+    plan: free
+    region: singapore
+    healthCheckPath: /health
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: AUTH_SECRET_KEY
+        generateValue: true
+      - key: DEMO_LOGIN_ENABLED
+        value: "false"
+      - key: DATABASE_URL
+        value: sqlite:////app/disaster_platform.db

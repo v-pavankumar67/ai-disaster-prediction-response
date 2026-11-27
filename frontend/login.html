@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#eef2f5">
+    <title>Sign In | AI Disaster Response</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;750&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/auth.css?v=2">
+</head>
+
+<body>
+    <main class="auth-shell">
+        <a class="auth-brand" href="/login" aria-label="AI Disaster Response sign in">
+            <span class="auth-brand-mark" aria-hidden="true">🚨</span>
+            <span class="auth-brand-copy">
+                <span class="auth-brand-name">AI Disaster Prediction &amp; Response</span>
+                <span class="auth-brand-caption">Emergency operations platform</span>
+            </span>
+        </a>
+
+        <section class="auth-card" aria-labelledby="auth-heading">
+            <p class="auth-eyebrow">SECURE ACCOUNT ACCESS</p>
+            <h1 id="auth-heading">Welcome back</h1>
+            <p class="auth-description">Sign in to access local risk forecasts and response operations.</p>
+
+            <form class="auth-form" id="auth-form" data-auth-mode="login" data-submit-label="🔐 Sign in">
+                <div class="auth-field">
+                    <label for="mobile-number">📱 Mobile number</label>
+                    <input id="mobile-number" name="mobile_number" type="tel" inputmode="tel" autocomplete="tel"
+                        placeholder="e.g. +91 98765 43210" required>
+                </div>
+                <div class="auth-field">
+                    <label for="password">🔒 Password</label>
+                    <input id="password" name="password" type="password" autocomplete="current-password"
+                        placeholder="Enter your password" required>
+                </div>
+                <p class="auth-message" id="auth-message" role="alert" hidden></p>
+                <button class="auth-submit" type="submit">🔐 Sign in</button>
+            </form>
+
+            <section class="auth-demo" id="auth-demo" aria-labelledby="demo-heading" hidden>
+                <h2 id="demo-heading">🚨 Emergency demo access</h2>
+                <p>Shared demonstration account for trying the response dashboard.</p>
+                <dl class="demo-credentials">
+                    <dt>Mobile</dt>
+                    <dd id="demo-mobile"></dd>
+                    <dt>Password</dt>
+                    <dd id="demo-password"></dd>
+                </dl>
+                <button class="demo-action" id="demo-login" type="button">⚡ Continue with demo account</button>
+            </section>
+
+            <p class="auth-switch">New to the platform? <a href="/register">Create an account</a></p>
+        </section>
+    </main>
+    <script src="/static/auth.js"></script>
+</body>
+
+</html>

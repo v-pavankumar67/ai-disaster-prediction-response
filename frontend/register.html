@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#eef2f5">
+    <title>Create Account | AI Disaster Response</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;750&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/auth.css?v=2">
+</head>
+
+<body>
+    <main class="auth-shell">
+        <a class="auth-brand" href="/register" aria-label="AI Disaster Response registration">
+            <span class="auth-brand-mark" aria-hidden="true">🚨</span>
+            <span>
+                <span class="auth-brand-name">AI Disaster Prediction &amp; Response</span>
+                <span class="auth-brand-caption">Emergency operations platform</span>
+            </span>
+        </a>
+
+        <section class="auth-card" aria-labelledby="auth-heading">
+            <p class="auth-eyebrow">CREATE YOUR ACCOUNT</p>
+            <h1 id="auth-heading">Join the response network</h1>
+            <p class="auth-description">Add your contact details and choose a verified location for your response area.
+            </p>
+
+            <form class="auth-form" id="auth-form" data-auth-mode="register" data-submit-label="✅ Create account">
+                <div class="auth-field">
+                    <label for="mobile-number">📱 Mobile number</label>
+                    <input id="mobile-number" name="mobile_number" type="tel" inputmode="tel" autocomplete="tel"
+                        placeholder="e.g. +91 98765 43210" required>
+                </div>
+                <div class="auth-field">
+                    <label for="location">📍 Location</label>
+                    <div class="location-search">
+                        <input id="location" name="location" type="text" autocomplete="off" role="combobox"
+                            aria-autocomplete="list" aria-expanded="false" aria-controls="location-results"
+                            placeholder="Type a city or address" minlength="2" maxlength="160" required>
+                        <button class="location-search-button" id="location-search" type="button">🔎 Find</button>
+                    </div>
+                    <div class="location-results" id="location-results" role="listbox" aria-label="Matching places"
+                        hidden></div>
+                    <p class="location-status" id="location-status" aria-live="polite">Search, then select the matching
+                        real place.</p>
+                    <input id="location-latitude" name="latitude" type="hidden">
+                    <input id="location-longitude" name="longitude" type="hidden">
+                    <p class="location-attribution">📍 Place results by OpenStreetMap contributors (Nominatim).</p>
+                </div>
+                <div class="auth-field">
+                    <label for="password">🔒 Password</label>
+                    <input id="password" name="password" type="password" autocomplete="new-password"
+                        placeholder="At least 8 characters" minlength="8" maxlength="128" required>
+                </div>
+                <p class="auth-message" id="auth-message" role="alert" hidden></p>
+                <button class="auth-submit" type="submit">✅ Create account</button>
+            </form>
+
+            <p class="auth-switch">Already registered? <a href="/login">Sign in</a></p>
+        </section>
+    </main>
+    <script src="/static/auth.js"></script>
+</body>
+
+</html>

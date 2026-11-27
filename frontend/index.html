@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Disaster Prediction & Response Platform</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css?v=threat-drilldown-1">
+</head>
+
+<body class="dark-theme">
+    <!-- Top Header -->
+    <header class="navbar">
+        <div class="brand">
+            <span class="pulse-indicator"></span>
+            <div class="brand-text">
+                <h1>AI DISASTER PREDICTION & RESPONSE PLATFORM</h1>
+                <p class="subtitle">MULTI-HAZARD EARLY WARNING • SPATIAL SIMULATION • RESOURCE DISPATCH OPTIMIZER</p>
+            </div>
+        </div>
+        <div class="system-status-pills">
+            <div class="pill active"><span class="dot"></span> 📡 LIVE SENSORS: 48 ACTIVE</div>
+            <div class="pill warning"><span class="dot"></span> ⚠️ THREAT: HIGH (MONSOON/FLOOD)</div>
+            <div class="account-menu-wrap" id="account-menu-wrap">
+                <button class="pill account-pill" id="btn-account-menu" type="button" aria-haspopup="true"
+                    aria-expanded="false" aria-controls="account-menu">
+                    <span aria-hidden="true">👤</span> Account <span aria-hidden="true">▾</span>
+                </button>
+                <section class="account-menu" id="account-menu" aria-label="Account details" hidden>
+                    <p class="account-detail"><span>📱 Mobile number</span><strong
+                            id="account-mobile">Loading...</strong></p>
+                    <p class="account-detail"><span>📍 Response location</span><strong
+                            id="account-location">Loading...</strong></p>
+                    <button class="account-edit-location" id="btn-edit-location" type="button">✏️ Change response
+                        location</button>
+                    <div class="account-location-editor" id="account-location-editor" hidden>
+                        <label for="account-location-query">Search for a new location</label>
+                        <div class="account-location-search">
+                            <input id="account-location-query" type="text" autocomplete="off"
+                                placeholder="Type a city or address">
+                            <button id="btn-search-account-location" type="button">🔎</button>
+                        </div>
+                        <div class="account-location-results" id="account-location-results" role="listbox" hidden></div>
+                        <p class="account-location-status" id="account-location-status" aria-live="polite">Select a real
+                            place to update your profile.</p>
+                        <button class="account-save-location" id="btn-save-account-location" type="button" disabled>📍
+                            Save location</button>
+                    </div>
+                    <button class="account-logout" id="btn-logout" type="button">🚪 Sign out</button>
+                </section>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Grid -->
+    <div class="main-container">
+        <!-- Left Panel: Pipeline Controls & 6-Hazard Risk Matrix -->
+        <aside class="sidebar-left">
+            <!-- 4-Stage Workflow Bar -->
+            <div class="section-box">
+                <h3 class="section-title">🧭 4-STAGE RESPONSE PIPELINE</h3>
+                <div class="pipeline-stepper">
+                    <div class="step active" id="step-1">
+                        <span class="step-num">1</span>
+                        <div class="step-desc">
+                            <strong>🔎 AI Prediction</strong>
+                            <small>6 Multi-Hazards</small>
+                        </div>
+                    </div>
+                    <div class="step" id="step-2">
+                        <span class="step-num">2</span>
+                        <div class="step-desc">
+                            <strong>🌧️ Simulation</strong>
+                            <small>2D Hydro CA / Fire</small>
+                        </div>
+                    </div>
+                    <div class="step" id="step-3">
+                        <span class="step-num">3</span>
+                        <div class="step-desc">
+                            <strong>🚧 Triage Decision</strong>
+                            <small>Road Severance</small>
+                        </div>
+                    </div>
+                    <div class="step" id="step-4">
+                        <span class="step-num">4</span>
+                        <div class="step-desc">
+                            <strong>🧭 Optimization</strong>
+                            <small>Dynamic VRPTW</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Scenario Triggers -->
+            <div class="section-box">
+                <h3 class="section-title">🎛️ OPERATIONAL CONTROLS</h3>
+                <div class="btn-grid">
+                    <button id="btn-predict" class="btn btn-primary">
+                        <span>⚡</span> Run AI Prediction
+                    </button>
+                    <button id="btn-simulate" class="btn btn-warning">
+                        <span>🌊</span> Simulate 48h Impact
+                    </button>
+                    <button id="btn-optimize" class="btn btn-success">
+                        <span>🚑</span> Optimize Fleet Dispatch
+                    </button>
+                    <button id="btn-reset" class="btn btn-secondary">
+                        <span>↺</span> Reset View
+                    </button>
+                    <button id="btn-report-incident" class="btn btn-secondary">
+                        <span>🆘</span> Report Incident
+                    </button>
+                </div>
+            </div>
+
+            <!-- 6-Disaster AI Risk Radar / Matrix -->
+            <div class="section-box flex-grow">
+                <h3 class="section-title">📊 6-HAZARD RISK MATRIX</h3>
+                <div class="hazard-cards-list" id="hazard-list">
+                    <!-- Dynamic Hazard Cards Loaded Here -->
+                    <div class="hazard-card critical">
+                        <div class="hazard-header">
+                            <span class="hazard-name">🌊 Flood & Inundation</span>
+                            <span class="hazard-badge">CRITICAL (0.91)</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-fill" style="width: 91%"></div>
+                        </div>
+                        <small class="hazard-detail">Periyar River 14.85m crest (danger 12.50m) + 68mm/h rain</small>
+                    </div>
+
+                    <div class="hazard-card high">
+                        <div class="hazard-header">
+                            <span class="hazard-name">⛰️ Landslide & Mudflow</span>
+                            <span class="hazard-badge">HIGH (0.74)</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-fill" style="width: 74%"></div>
+                        </div>
+                        <small class="hazard-detail">Slope shear stress 28.5° with 195mm 72h saturation</small>
+                    </div>
+
+                    <div class="hazard-card moderate">
+                        <div class="hazard-header">
+                            <span class="hazard-name">🌀 Tropical Cyclone</span>
+                            <span class="hazard-badge">MODERATE (0.58)</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-fill" style="width: 58%"></div>
+                        </div>
+                        <small class="hazard-detail">Gale winds 55 km/h, central pressure 1002 hPa</small>
+                    </div>
+
+                    <div class="hazard-card low">
+                        <div class="hazard-header">
+                            <span class="hazard-name">🔥 Wildfire</span>
+                            <span class="hazard-badge">LOW (0.12)</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-fill" style="width: 12%"></div>
+                        </div>
+                        <small class="hazard-detail">Suppressed by high relative humidity (88%)</small>
+                    </div>
+
+                    <div class="hazard-card low">
+                        <div class="hazard-header">
+                            <span class="hazard-name">🌡️ Heatwave</span>
+                            <span class="hazard-badge">LOW (0.18)</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-fill" style="width: 18%"></div>
+                        </div>
+                        <small class="hazard-detail">Ambient temp 28°C under continuous cloud deck</small>
+                    </div>
+
+                    <div class="hazard-card low">
+                        <div class="hazard-header">
+                            <span class="hazard-name">☀️ Drought</span>
+                            <span class="hazard-badge">LOW (0.08)</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-fill" style="width: 8%"></div>
+                        </div>
+                        <small class="hazard-detail">Reservoir storage 75% capacity</small>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center: Interactive GIS Operations Map -->
+        <main class="map-viewport">
+            <div id="map"></div>
+            <div class="device-location-control">
+                <button id="btn-current-location" type="button">📍 Use my current location</button>
+                <p id="device-location-status" role="status" aria-live="polite" hidden></p>
+            </div>
+
+            <!-- Map Floating HUD: 48-Hour Simulation Timeline Scrubber -->
+            <div class="map-timeline-hud">
+                <div class="timeline-controls">
+                    <button id="btn-play-timeline" class="btn-circle">▶</button>
+                    <div class="timeline-slider-wrap">
+                        <div class="timeline-labels">
+                            <span>T+0h (Present)</span>
+                            <span>T+12h</span>
+                            <span>T+24h</span>
+                            <span>T+36h</span>
+                            <span>T+48h (Peak Flood)</span>
+                        </div>
+                        <input type="range" id="timeline-range" min="0" max="48" step="3" value="0">
+                    </div>
+                    <div class="timeline-current-val">
+                        <span id="timeline-hour-display">T+0h</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Floating Legend -->
+            <div class="map-legend">
+                <h4>🗺️ GIS OPERATIONAL LAYERS</h4>
+                <div class="legend-item"><span class="legend-color flood"></span> Inundated Flood Zone</div>
+                <div class="legend-item"><span class="legend-color severed"></span> Severed Road / Collapsed Bridge
+                </div>
+                <div class="legend-item"><span class="legend-color isolated"></span> Cut-Off Isolated Settlement</div>
+                <div class="legend-item"><span class="legend-color shelter"></span> Activated Safe Relief Shelter</div>
+                <div class="legend-item"><span class="legend-color boat-route"></span> Rescue Boat Convoy Route</div>
+                <div class="legend-item"><span class="legend-color truck-route"></span> 4x4 Supply Convoy Detour</div>
+                <div class="legend-item"><span class="legend-color drone-route"></span> Medical Airdrop Drone Route
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Panel: Triage Decision & Convoy Dispatch Details -->
+        <aside class="sidebar-right">
+            <!-- Triage Ranking Box -->
+            <div class="section-box">
+                <h3 class="section-title">🚨 ISOLATED SETTLEMENT TRIAGE</h3>
+                <div class="table-responsive">
+                    <table class="triage-table">
+                        <thead>
+                            <tr>
+                                <th>Settlement</th>
+                                <th>Pop.</th>
+                                <th>Status</th>
+                                <th>Urgency</th>
+                            </tr>
+                        </thead>
+                        <tbody id="triage-tbody">
+                            <tr>
+                                <td>Aluva Lowland</td>
+                                <td>1,450</td>
+                                <td><span class="badge danger">ISOLATED</span></td>
+                                <td><span class="badge danger">P1 - CRITICAL</span></td>
+                            </tr>
+                            <tr>
+                                <td>Varapuzha Island</td>
+                                <td>980</td>
+                                <td><span class="badge danger">ISOLATED</span></td>
+                                <td><span class="badge danger">P1 - CRITICAL</span></td>
+                            </tr>
+                            <tr>
+                                <td>Kalady Riverside</td>
+                                <td>2,100</td>
+                                <td><span class="badge warning">REROUTE</span></td>
+                                <td><span class="badge warning">P2 - URGENT</span></td>
+                            </tr>
+                            <tr>
+                                <td>Perumbavoor Hill</td>
+                                <td>3,800</td>
+                                <td><span class="badge success">ACCESSIBLE</span></td>
+                                <td><span class="badge secondary">P3 - WATCH</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <section class="section-box incident-feed-section">
+                <h3 class="section-title">🆘 COMMUNITY INCIDENT REPORTS</h3>
+                <p class="incident-feed-status" id="incident-feed-status">Loading community reports...</p>
+                <div class="incident-feed" id="incident-feed" aria-live="polite"></div>
+            </section>
+
+            <!-- Active Fleet Dispatch Manifest -->
+            <div class="section-box flex-grow">
+                <h3 class="section-title">🚚 ACTIVE DISPATCH MANIFEST</h3>
+                <div id="dispatch-manifest" class="manifest-list">
+                    <div class="manifest-card">
+                        <div class="manifest-title">
+                            <span>🚤 RESCUE-BOAT-FLOTILLA-A</span>
+                            <span class="badge primary">EN ROUTE</span>
+                        </div>
+                        <p class="manifest-info"><strong>Destination:</strong> Aluva & Varapuzha Lowlands</p>
+                        <p class="manifest-info"><strong>Distance:</strong> 12.4 km • <strong>ETA:</strong> 52 min</p>
+                        <p class="manifest-info"><strong>Assigned Cargo:</strong> 120 Life Jackets, 5,000 Water Tablets,
+                            40 Med Kits</p>
+                        <p class="manifest-info"><strong>Evacuation Target:</strong> 110 High-Risk Civilians</p>
+                    </div>
+
+                    <div class="manifest-card">
+                        <div class="manifest-title">
+                            <span>🚚 TRUCK-CONVOY-BRAVO (4x4)</span>
+                            <span class="badge warning">DETOURING NH-66</span>
+                        </div>
+                        <p class="manifest-info"><strong>Route:</strong> Eastern Ridge SH-15 Bypass</p>
+                        <p class="manifest-info"><strong>Distance:</strong> 22.7 km • <strong>ETA:</strong> 64 min</p>
+                        <p class="manifest-info"><strong>Assigned Cargo:</strong> 4 Heavy Generators, 1,200 Food
+                            Rations, 4,500L Water</p>
+                        <p class="manifest-info"><strong>Evacuation Target:</strong> 85 Civilians</p>
+                    </div>
+
+                    <div class="manifest-card">
+                        <div class="manifest-title">
+                            <span>🚁 AERO-DRONE-SQUADRON-X</span>
+                            <span class="badge success">AIRDROP COMPLETE</span>
+                        </div>
+                        <p class="manifest-info"><strong>Target:</strong> Island Medical Clinic</p>
+                        <p class="manifest-info"><strong>Distance:</strong> 18.4 km • <strong>Duration:</strong> 22 min
+                        </p>
+                        <p class="manifest-info"><strong>Cargo:</strong> 20 Antivenom Vials, 50 Insulin Kits, Sat-Comms
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Telemetry Logs / Terminal Feed -->
+            <div class="section-box">
+                <h3 class="section-title">📡 SYSTEM TELEMETRY LOG</h3>
+                <div class="terminal-log" id="telemetry-log">
+                    <div class="log-line">[12:28:10] Ingestion: Open-Meteo precipitation stream active (68.5 mm/h).
+                    </div>
+                    <div class="log-line warning">[12:28:11] IoT River Station KLR-01: Crest 14.85m EXCEEDS danger
+                        (12.50m).</div>
+                    <div class="log-line danger">[12:28:12] Hydro CA Sim: Submersion detected across NH-66 bridge edge.
+                    </div>
+                    <div class="log-line success">[12:28:14] VRPTW Optimizer: Converged on 3 multi-modal rescue routes.
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <dialog class="incident-dialog" id="incident-dialog" aria-labelledby="incident-dialog-title">
+        <section class="incident-dialog-panel">
+            <header class="incident-dialog-header">
+                <div>
+                    <p class="incident-dialog-eyebrow">COMMUNITY SAFETY</p>
+                    <h2 id="incident-dialog-title">🆘 Report an incident</h2>
+                </div>
+                <button class="incident-dialog-close" id="btn-close-incident" type="button"
+                    aria-label="Close report form">×</button>
+            </header>
+            <p class="incident-dialog-copy">Share a hazard, warning, or damage report with the response team.</p>
+            <form id="incident-form" class="incident-form">
+                <label class="incident-field">
+                    <span>⚠️ Incident type</span>
+                    <select name="event_type" required>
+                        <option value="flood">🌊 Flood or waterlogging</option>
+                        <option value="landslide">⛰️ Landslide</option>
+                        <option value="wildfire">🔥 Wildfire</option>
+                        <option value="cyclone">🌀 Cyclone or severe storm</option>
+                        <option value="heatwave">🌡️ Extreme heat</option>
+                        <option value="drought">☀️ Drought</option>
+                        <option value="infrastructure">🚧 Infrastructure damage</option>
+                        <option value="other">⚠️ Other hazard or warning</option>
+                    </select>
+                </label>
+                <label class="incident-field">
+                    <span>🕒 When did you see it?</span>
+                    <select name="event_timing" required>
+                        <option value="before">Warning / possible threat</option>
+                        <option value="during" selected>Happening now</option>
+                        <option value="after">Seen after the event</option>
+                    </select>
+                </label>
+                <label class="incident-field incident-field-wide">
+                    <span>📝 What did you observe?</span>
+                    <textarea name="description" rows="3" minlength="5" maxlength="2000"
+                        placeholder="Describe the warning, damage, or immediate risk..." required></textarea>
+                </label>
+                <div class="incident-field incident-field-wide">
+                    <label for="incident-location-query">📍 Incident location</label>
+                    <div class="incident-location-search">
+                        <input id="incident-location-query" type="text" autocomplete="off"
+                            placeholder="Search a city, road, or landmark">
+                        <button id="btn-search-incident-location" type="button">🔎 Find</button>
+                    </div>
+                    <div class="incident-location-results" id="incident-location-results" role="listbox" hidden></div>
+                    <p class="incident-field-hint" id="incident-location-status" aria-live="polite">Select the incident
+                        location from verified map results.</p>
+                </div>
+                <div class="incident-field incident-field-wide">
+                    <span>📱 Report contact</span>
+                    <output class="incident-contact" id="incident-reporter-mobile">Loading account...</output>
+                    <small>Your account mobile number is attached and shown to signed-in responders.</small>
+                </div>
+                <label class="incident-field incident-field-wide">
+                    <span>📷 Photos, video, or voice note</span>
+                    <input id="incident-files" name="files" type="file"
+                        accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime,video/webm,audio/mp4,audio/mpeg,audio/ogg,audio/webm"
+                        multiple>
+                    <div class="incident-capture-tools" aria-label="Quick media capture">
+                        <button id="btn-open-camera" type="button">📷 Open camera</button>
+                        <button id="btn-capture-photo" type="button" disabled>📸 Capture photo</button>
+                        <button id="btn-start-video" type="button" disabled>🎥 Record video</button>
+                        <button id="btn-stop-video" type="button" hidden>⏹ Stop video</button>
+                        <button id="btn-close-camera" type="button" disabled>Close camera</button>
+                        <button id="btn-start-audio" type="button">🎙 Record voice note</button>
+                        <button id="btn-stop-audio" type="button" hidden>⏹ Stop voice note</button>
+                    </div>
+                    <video class="incident-camera-preview" id="incident-camera-preview" autoplay muted playsinline
+                        hidden></video>
+                    <p class="incident-capture-status" id="incident-capture-status" aria-live="polite">Use your device
+                        camera or microphone for a quick report.</p>
+                    <small>Up to 5 files, 20 MB each, 40 MB total. Photos, MP4/MOV/WebM video, or M4A/MP3/OGG/WebM
+                        audio.</small>
+                    <span class="incident-media-preview" id="incident-media-preview"></span>
+                </label>
+                <p class="incident-form-message" id="incident-form-message" role="alert" hidden></p>
+                <footer class="incident-form-actions">
+                    <button class="incident-cancel" id="btn-cancel-incident" type="button">Cancel</button>
+                    <button class="incident-submit" type="submit">📨 Send report</button>
+                </footer>
+            </form>
+        </section>
+    </dialog>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="/static/app.js?v=threat-drilldown-4"></script>
+</body>
+
+</html>
